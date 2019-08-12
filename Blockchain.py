@@ -1,6 +1,7 @@
 from Block import Block
 import time
 from Transaction import Transaction
+import threading
 
 class Blockchain:
 	def __init__(self):
@@ -57,16 +58,14 @@ class Blockchain:
 			return
 		reward_tx = Transaction(None, mining_reward_address, self.mining_reward)
 		self.pending_transactions.append(reward_tx)
-		self.pending_transactions = self.filter_pending_transactions()
-		block = Block(time.time(), self.pending_transactions, self.get_latest_block().hash)
-		block.mine_block(self.difficulty)
+		transactions = self.filter_pending_transactions()
+		self.pending_transactions = []
+		block = Block(time.time(), transactions, self.get_latest_block().hash)
 
 		## proof or work ##
-		self.chain.append(block)
-		self.num_blocks += 1
-		self.num_transactions += len(self.pending_transactions)
-
-		self.pending_transactions = []
+		miner = threading.Thread(group=None, target=block.mine_block, args=(self.difficulty,self))
+		miner.start()
+		return miner
 
 	def add_transaction(self, transaction):
 		if (not transaction.to_address):
@@ -117,6 +116,7 @@ class Blockchain:
 			blk = self.chain[i]
 			# first check if the block's hash is really the hash
 			if (blk.calculate_hash() != blk.hash):
+				print("one")
 				return False
 
 			# the above test could pass even if someone tampered w the blk
@@ -138,12 +138,14 @@ class Blockchain:
 
 			"""
 			if (not blk.has_valid_transactions()):
+				print("two")
 				return False
 
 			# now check if someone deleted a block by comparing the prevHash
 			# to the hash of the previous element on the blockchain
 
 			if (blk.prev_hash != self.chain[i-1].calculate_hash()):
+				print("three")
 				return False
 		return True
 

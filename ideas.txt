@@ -1,0 +1,26 @@
+
+
+In the current version of OviCoin, you can add transactions to the chain
+and you can mine a block. However, whenever you decide to mine, you have
+to wait until the mining is completed until you can add any other transactions.
+
+This of course is unacceptable. I have the idea that I can solev this problem by
+using a separate thread to mine, but it seems like this would introduce a whole lot of race conditions
+because of the shared state that these threads would be modifying: the
+"pending transactions" array. Actually, what if you just create a single critical section
+in which you make a copy of the pending arrays and then reset the pending arrays to 0.
+Then there would be no shared state problems.
+
+
+
+
+
+For example, consider this:
+
+These are the pending transactions:
+
+[t1, t2, t3]
+-------------
+
+
+By calling mine, 

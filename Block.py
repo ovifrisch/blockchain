@@ -15,12 +15,15 @@ class Block:
 	def calculate_hash(self):
 		return hashlib.sha256((self.prev_hash + str(self.timestamp) + json.dumps([x.__dict__ for x in self.transactions]) + str(self.nonce)).encode('utf-8')).hexdigest()
 
-	def mine_block(self, difficulty):
-
+	def mine_block(self, difficulty, ovi_coin):
 		while (self.hash[:difficulty] != "0" * difficulty):
 			self.nonce += 1
+			self.prev_hash = ovi_coin.get_latest_block().hash
 			self.hash = self.calculate_hash()
 
+		ovi_coin.chain.append(self)
+		ovi_coin.num_blocks += 1
+		ovi_coin.num_transactions += len(self.transactions)
 		print("Block mined: {0}".format(self.hash))
 
 
