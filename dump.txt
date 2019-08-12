@@ -1,0 +1,27 @@
+# ovi_coin = Blockchain()
+
+# keypair1 = RSA.generate(1024)
+# from_address1 = binascii.hexlify(keypair1.publickey().exportKey(format='DER')).decode('ascii')
+
+# tx1 = Transaction(None, from_address1, 100)
+# ovi_coin.add_transaction(tx1)
+# ovi_coin.mine_pending_transactions(from_address1)
+
+# keypair2 = RSA.generate(1024)
+# from_address2 = binascii.hexlify(keypair2.publickey().exportKey(format='DER')).decode('ascii')
+
+# tx2 = Transaction(from_address1, from_address2, 70)
+# tx2.sign(keypair1)
+
+# ovi_coin.add_transaction(tx2)
+# ovi_coin.mine_pending_transactions(from_address1)
+
+# tx3 = Transaction(from_address2, from_address1, 70)
+# tx3.sign(keypair2)
+# ovi_coin.add_transaction(tx3)
+# ovi_coin.mine_pending_transactions(from_address1)
+
+# print(ovi_coin.get_balance_of_address(from_address1))
+# print(ovi_coin.get_balance_of_address(from_address2))
+
+# print(tx1.is_valid())
