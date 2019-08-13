@@ -1,27 +1,19 @@
-from Crypto.PublicKey import RSA
 from Blockchain import Blockchain
 from Transaction import Transaction
+from KeyGenerator import KeyGenerator
 from Wallet import Wallet
-import binascii
 import random
-import time
-
-
-
-
 
 if __name__ == "__main__":
-
 	ovi_coin = Blockchain(difficulty=2, mining_reward=100)
+	keygen = KeyGenerator()
 	names = ["Miner", "Ovi", "Bob", "Alice", "Peter", "Collin", "Mark", "Daniel", "Alex", "Jane", "Jill"]
 	threads = []
 
 	# create 11 wallets
 	wallets = []
 	for i in range(11):
-		sk = RSA.generate(1024)
-		print(type(sk))
-		pk = binascii.hexlify(sk.publickey().exportKey(format='DER')).decode('ascii')
+		sk, pk = keygen.generate()
 		wallets.append(Wallet(names[i], pk, sk))
 
 	# have a designated miner
@@ -64,11 +56,6 @@ if __name__ == "__main__":
 
 	for wallet in [miner] + wallets:
 		wallet.show(ovi_coin)
-
-	print(ovi_coin.is_chain_valid())
-	print(ovi_coin.num_transactions)
-	for x in ovi_coin.chain:
-		print(x.hash, x.prev_hash)
 
 
 
