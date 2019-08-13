@@ -11,6 +11,7 @@ class Blockchain:
 		self.mining_reward = 100
 		self.num_blocks = 1
 		self.num_transactions = 0
+		self.lock = threading.Lock()
 
 	def create_genesis_block(self):
 		return Block(time.time(), [])
@@ -24,14 +25,14 @@ class Blockchain:
 	# before committing them to the chain
 
 	# any transaction that goes negative will not be included
-	def filter_pending_transactions(self):
+	def filter_transactions(self, transactions):
 
 		# public key to balance
 		h = {}
 
 		# filtered transactions
 		res = []
-		for tx in self.pending_transactions:
+		for tx in transactions:
 			if (tx.to_address not in h):
 				h[tx.to_address] = self.get_balance_of_address(tx.to_address)
 
@@ -52,18 +53,27 @@ class Blockchain:
 			res.append(tx)
 		return res
 
+	def xx(self, mining_reward_address, transactions):
+		with self.lock:
+			if (not transactions):
+				return
+			reward_tx = Transaction(None, mining_reward_address, self.mining_reward)
+			transactions.append(reward_tx)
+			transactions = self.filter_transactions(transactions)
+			block = Block(time.time(), transactions, self.get_latest_block().hash)
+
+			## proof or work ##
+			block.mine_block(self.difficulty)
+			print("mined" + str(len(transactions)))
+			self.chain.append(block)
+			self.num_blocks += 1
+			self.num_transactions += len(transactions)
+
 
 	def mine_pending_transactions(self, mining_reward_address):
-		if (not self.pending_transactions):
-			return
-		reward_tx = Transaction(None, mining_reward_address, self.mining_reward)
-		self.pending_transactions.append(reward_tx)
-		transactions = self.filter_pending_transactions()
+		transactions = self.pending_transactions;
 		self.pending_transactions = []
-		block = Block(time.time(), transactions, self.get_latest_block().hash)
-
-		## proof or work ##
-		miner = threading.Thread(group=None, target=block.mine_block, args=(self.difficulty,self))
+		miner = threading.Thread(group=None, target=self.xx, args=(mining_reward_address,transactions))
 		miner.start()
 		return miner
 
@@ -80,11 +90,12 @@ class Blockchain:
 			print("Transaction amount must be positive")
 			return
 
-		if (transaction.from_address is not None):
-			bal = self.get_balance_of_address(transaction.from_address)
-			if (bal - transaction.amount < 0):
-				print("Insufficient funds to make this transaction")
-				return
+		"""
+		used to check for enough funds here, but earlier
+		transactions may not have been added to the chain
+		yet (they are being mined), so insufficient funds must
+		only be determined when a block is being mined
+		"""
 
 		print("Transaction successfully added to pending transactions")
 		self.pending_transactions.append(transaction)

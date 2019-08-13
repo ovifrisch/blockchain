@@ -31,30 +31,28 @@ if __name__ == "__main__":
 	for i in range(10):
 		tx = Transaction(None, wallets[i].pk, 100)
 		ovi_coin.add_transaction(tx)
-	t1 = ovi_coin.mine_pending_transactions(miner.pk)
-
-	t1.join()
+	threads.append(ovi_coin.mine_pending_transactions(miner.pk))
 
 
 	# randomly execute 100 transactions between the wallets
 	# and mine every 10
 	for i in range(1, 101):
 
-		# generate 2 random idxs that aren't equal
+	# 	# generate 2 random idxs that aren't equal
 		s = r = 0
 		while (s == r):
 			s = random.randint(0, 9)
 			r = random.randint(0, 9)
 
-		# generate a random amount between 1 and 100
+	# 	# generate a random amount between 1 and 100
 		amt = random.randint(1, 100)
 
-		# create the transaction
+	# 	# create the transaction
 		tx = Transaction(wallets[s].pk, wallets[r].pk, amt)
 		tx.sign(wallets[s].sk)
 		ovi_coin.add_transaction(tx)
 
-		# mine every 5
+	# 	# mine every 5
 		if (i % 5 == 0):
 			threads.append(ovi_coin.mine_pending_transactions(miner.pk))
 	threads.append(ovi_coin.mine_pending_transactions(miner.pk))
@@ -68,6 +66,8 @@ if __name__ == "__main__":
 
 	print(ovi_coin.is_chain_valid())
 	print(ovi_coin.num_transactions)
+	for x in ovi_coin.chain:
+		print(x.hash, x.prev_hash)
 
 
 
