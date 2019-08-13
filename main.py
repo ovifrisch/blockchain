@@ -12,7 +12,7 @@ import time
 
 if __name__ == "__main__":
 
-	ovi_coin = Blockchain()
+	ovi_coin = Blockchain(difficulty=2, mining_reward=100)
 	names = ["Miner", "Ovi", "Bob", "Alice", "Peter", "Collin", "Mark", "Daniel", "Alex", "Jane", "Jill"]
 	threads = []
 
@@ -20,6 +20,7 @@ if __name__ == "__main__":
 	wallets = []
 	for i in range(11):
 		sk = RSA.generate(1024)
+		print(type(sk))
 		pk = binascii.hexlify(sk.publickey().exportKey(format='DER')).decode('ascii')
 		wallets.append(Wallet(names[i], pk, sk))
 
